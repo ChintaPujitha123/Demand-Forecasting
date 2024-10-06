@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from statsmodels.tsa.arima.model import ARIMA
-transactions = pd.read_csv('/path/to/Transactional_data_retail_01.csv')
+transactions = pd.read_csv('Transactional_data_retail_01.csv')
 top_10_products = transactions.groupby('StockCode')['Quantity'].sum().nlargest(10)
 stock_code = st.selectbox('Select Stock Code', top_10_products.index)
 weeks = st.slider('Number of Weeks to Forecast', 1, 15)
