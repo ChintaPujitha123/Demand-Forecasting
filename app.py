@@ -1,26 +1,37 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-from statsmodels.tsa.arima.model import ARIMA
 
-# Load your data
-transactions = pd.read_csv('Transactional_data_retail_01.csv')
+# Load the CSV file
+try:
+    transactions = pd.read_csv('Transactional_data_retail_01.csv')
+except FileNotFoundError:
+    st.error("The specified CSV file was not found. Please check the file path.")
+    st.stop()  # Stop further execution if file not found
 
-# Select a stock code
-top_10_products = transactions.groupby('StockCode')['Quantity'].sum().nlargest(10)
-stock_code = st.selectbox('Select Stock Code', top_10_products.index)
+# Strip any leading or trailing spaces from column names
+transactions.columns = transactions.columns.str.strip()
 
-# Input number of weeks to forecast
-weeks = st.slider('Number of Weeks to Forecast', 1, 15)
+# Print available columns to the app for debugging
+st.write("Available columns in the DataFrame:")
+st.write(transactions.columns.tolist())  # Display column names as a list
 
-# ARIMA model example (simplified)
-product_sales = transactions[transactions['StockCode'] == stock_code].groupby('TransactionDate')['Quantity'].sum()
-train_data = product_sales[:-15]
+# Define stock_code for filtering
+stock_code = 'YOUR_STOCK_CODE'  # Replace with the actual stock code you want to filter
 
-model = ARIMA(train_data, order=(5,1,0))
-result = model.fit()
+# Check for required columns
+required_columns = ['StockCode', 'TransactionDate', 'Quantity']
+missing_columns = [col for col in required_columns if col not in transactions.columns]
 
-# Forecast for the next 'weeks'
-forecast = result.forecast(steps=weeks)
-st.write(f"Forecast for {stock_code} for {weeks} weeks:")
-st.line_chart(forecast)
+if missing_columns:
+    st.error(f"Missing columns in the data: {', '.join(missing_columns)}. Please check the CSV file.")
+else:
+    # Check if the DataFrame is empty
+    if transactions.empty:
+        st.error("The DataFrame is empty. Please check the CSV file.")
+    else:
+        # Attempt to filter and group the data
+        try:
+            product_sales = transactions[transactions['StockCode'] == stock_code].groupby('TransactionDate')['Quantity'].sum()
+            st.write(product_sales)  # Display the product sales data
+        except Exception as e:
+            st.error(f"An error occurred while processing the data: {str(e)}")
