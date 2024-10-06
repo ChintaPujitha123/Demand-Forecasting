@@ -22,7 +22,7 @@ else:
     stock_code = 'YOUR_STOCK_CODE'  # Replace with the actual stock code you want to filter
 
     # Check for required columns
-    required_columns = ['StockCode', 'TransactionDate', 'Quantity']
+    required_columns = ['StockCode', 'InvoiceDate', 'Quantity']
     missing_columns = [col for col in required_columns if col not in transactions.columns]
 
     # If there are missing columns, display an error
@@ -30,5 +30,5 @@ else:
         st.error(f"Missing columns in the data: {', '.join(missing_columns)}. Please check the CSV file.")
     else:
         # Proceed to filter and group the data
-        product_sales = transactions[transactions['StockCode'] == stock_code].groupby('TransactionDate')['Quantity'].sum()
+        product_sales = transactions[transactions['StockCode'] == stock_code].groupby('InvoiceDate')['Quantity'].sum()
         st.write(product_sales)  # Display the product sales data
