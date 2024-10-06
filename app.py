@@ -1,30 +1,26 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.arima.model import ARIMA
 
-# Load the CSV file
+# Load your data
 transactions = pd.read_csv('Transactional_data_retail_01.csv')
 
-# Strip any leading or trailing spaces from column names
-transactions.columns = transactions.columns.str.strip()
+# Select a stock code
+top_10_products = transactions.groupby('StockCode')['Quantity'].sum().nlargest(10)
+stock_code = st.selectbox('Select Stock Code', top_10_products.index)
 
-# Print available columns to the app for debugging
-st.write("Available columns in the DataFrame:")
-st.write(transactions.columns.tolist())  # Display column names as a list
+# Input number of weeks to forecast
+weeks = st.slider('Number of Weeks to Forecast', 1, 15)
 
-# Check if the DataFrame is empty
-if transactions.empty:
-    st.error("The DataFrame is empty. Please check the CSV file.")
-else:
-    # Display the first few rows of the DataFrame
-    st.write(transactions.head())
+# ARIMA model example (simplified)
+product_sales = transactions[transactions['StockCode'] == stock_code].groupby('TransactionDate')['Quantity'].sum()
+train_data = product_sales[:-15]
 
-    # Define stock_code for filtering
-    stock_code = 'YOUR_STOCK_CODE'  # Replace with the actual stock code you want to filter
+model = ARIMA(train_data, order=(5,1,0))
+result = model.fit()
 
-    try:
-        # Attempt to filter and group the data
-        product_sales = transactions[transactions['StockCode'] == stock_code].groupby('TransactionDate')['Quantity'].sum()
-        st.write(product_sales)  # Display the product sales data
-    except KeyError as e:
-        # Handle the KeyError by showing an error message
-        st.error(f"KeyError: {str(e)}. Check if 'StockCode' and 'TransactionDate' exist in the DataFrame.")
+# Forecast for the next 'weeks'
+forecast = result.forecast(steps=weeks)
+st.write(f"Forecast for {stock_code} for {weeks} weeks:")
+st.line_chart(forecast)
