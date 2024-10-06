@@ -8,16 +8,23 @@ transactions = pd.read_csv('Transactional_data_retail_01.csv')
 transactions.columns = transactions.columns.str.strip()
 
 # Print available columns to the app for debugging
-st.write(transactions.columns)
+st.write("Available columns in the DataFrame:")
+st.write(transactions.columns.tolist())  # Display column names as a list
 
-# Check the first few rows of the DataFrame
-st.write(transactions.head())
-
-# Filter and group the data
-stock_code = 'YOUR_STOCK_CODE'  # Replace with the actual stock code you want to filter
-
-# Check if the required columns exist
-if 'StockCode' in transactions.columns and 'TransactionDate' in transactions.columns:
-    product_sales = transactions[transactions['StockCode'] == stock_code].groupby('TransactionDate')['Quantity'].sum()
+# Check if the DataFrame is empty
+if transactions.empty:
+    st.error("The DataFrame is empty. Please check the CSV file.")
 else:
-    st.error("Required columns are missing from the data.")
+    # Display the first few rows of the DataFrame
+    st.write(transactions.head())
+
+    # Define stock_code for filtering
+    stock_code = 'YOUR_STOCK_CODE'  # Replace with the actual stock code you want to filter
+
+    try:
+        # Attempt to filter and group the data
+        product_sales = transactions[transactions['StockCode'] == stock_code].groupby('TransactionDate')['Quantity'].sum()
+        st.write(product_sales)  # Display the product sales data
+    except KeyError as e:
+        # Handle the KeyError by showing an error message
+        st.error(f"KeyError: {str(e)}. Check if 'StockCode' and 'TransactionDate' exist in the DataFrame.")
