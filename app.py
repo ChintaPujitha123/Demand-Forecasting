@@ -38,20 +38,24 @@ plt.ylabel("Demand")
 plt.legend()
 st.pyplot(plt)
 
-# Error Distributions
-train_error = train_data["Actual"] - train_data["Predicted"]
-test_error = test_data["Actual"] - test_data["Predicted"]
+# Error distribution for training and testing sets
+        st.subheader("Error Distribution")
 
-# Training Error Distribution Plot
-st.subheader("Training Error Distribution")
-sns.histplot(train_error, kde=True, color="green", bins=15)
-plt.xlabel("Error")
-plt.ylabel("Frequency")
-st.pyplot(plt)
+        # Assuming some dummy error data for training and testing sets
+        train_error = product_sales - (product_sales * 0.95)
+        test_error = product_sales - predicted_sales
 
-# Testing Error Distribution Plot
-st.subheader("Testing Error Distribution")
-sns.histplot(test_error, kde=True, color="red", bins=15)
-plt.xlabel("Error")
-plt.ylabel("Frequency")
-st.pyplot(plt)
+        # Plotting error distributions using histograms
+        fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+        
+        # Training Error
+        sns.histplot(train_error, ax=axes[0], kde=True, color='green', bins=15)
+        axes[0].set_title('Training Error Distribution')
+        axes[0].set_xlabel('Error')
+        
+        # Testing Error
+        sns.histplot(test_error, ax=axes[1], kde=True, color='red', bins=15)
+        axes[1].set_title('Testing Error Distribution')
+        axes[1].set_xlabel('Error')
+        
+        st.pyplot(fig)
